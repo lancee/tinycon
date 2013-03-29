@@ -6,7 +6,7 @@
  * @version 0.5
 */
 
-(function(){
+(function() {
 
 	var Tinycon = {};
 	var currentFavicon = null;
@@ -15,10 +15,12 @@
 	var faviconImage = null;
 	var canvas = null;
 	var options = {};
+	var ratio = devicePixelRatio;
+	var size = 16 * ratio;
 	var defaults = {
 		width: 7,
 		height: 9,
-		font: '10px arial',
+		font: 10*ratio + 'px arial',
 		colour: '#ffffff',
 		background: '#F03D25',
 		fallback: true,
@@ -42,7 +44,7 @@
 	};
 
 	// private methods
-	var getFaviconTag = function(){
+	var getFaviconTag = function() {
 
 		var links = document.getElementsByTagName('link');
 
@@ -55,7 +57,7 @@
 		return false;
 	};
 
-	var removeFaviconTag = function(){
+	var removeFaviconTag = function() {
 
 		var links = document.getElementsByTagName('link');
 		var head = document.getElementsByTagName('head')[0];
@@ -68,7 +70,7 @@
 		}
 	};
 
-	var getCurrentFavicon = function(){
+	var getCurrentFavicon = function() {
 
 		if (!originalFavicon || !currentFavicon) {
 			var tag = getFaviconTag();
@@ -78,18 +80,18 @@
 		return currentFavicon;
 	};
 
-	var getCanvas = function (){
+	var getCanvas = function () {
 
 		if (!canvas) {
 			canvas = document.createElement("canvas");
-			canvas.width = 16;
-			canvas.height = 16;
+			canvas.width = size;
+			canvas.height = size;
 		}
 
 		return canvas;
 	};
 
-	var setFaviconTag = function(url){
+	var setFaviconTag = function(url) {
 		removeFaviconTag();
 
 		var link = document.createElement('link');
@@ -99,7 +101,7 @@
 		document.getElementsByTagName('head')[0].appendChild(link);
 	};
 
-	var log = function(message){
+	var log = function(message) {
 		if (window.console) window.console.log(message);
 	};
 
@@ -118,10 +120,10 @@
 		faviconImage.onload = function() {
 
 			// clear canvas
-			context.clearRect(0, 0, 16, 16);
+			context.clearRect(0, 0, size, size);
 
 			// draw original favicon
-			context.drawImage(faviconImage, 0, 0, faviconImage.width, faviconImage.height, 0, 0, 16, 16);
+			context.drawImage(faviconImage, 0, 0, size, size, 0, 0, size, size);
 
 			// draw bubble over the top
 			if ((label + '').length > 0) drawBubble(context, label, colour);
@@ -159,36 +161,39 @@
 
 		// bubble needs to be larger for double digits
 		var len = (label + '').length-1;
-		var width = options.width + (6*len);
-		var w = 16-width;
-		var h = 16-options.height;
+
+		var width = options.width*ratio + (6*ratio*len),
+		    height = options.height*ratio;
+
+		var w = size-width,
+		    h = size-height;
 
 		// webkit seems to render fonts lighter than firefox
 		context.font = (browser.webkit ? 'bold ' : '') + options.font;
 		context.fillStyle = options.background;
 		context.strokeStyle = options.background;
-		context.lineWidth = 1;
+		context.lineWidth = 1*ratio;
 
 		// bubble
-		context.fillRect(w,h,width-1,options.height);
+		context.fillRect(w,h,width-1*ratio,height);
 
 		// rounded left
 		context.beginPath();
-		context.moveTo(w-0.5,h+1);
-		context.lineTo(w-0.5,15);
+		context.moveTo(w-0.5*ratio,h+1*ratio);
+		context.lineTo(w-0.5*ratio,15*ratio);
 		context.stroke();
 
 		// rounded right
 		context.beginPath();
-		context.moveTo(15.5,h+1);
-		context.lineTo(15.5,15);
+		context.moveTo(15.5*ratio,h+1*ratio);
+		context.lineTo(15.5*ratio,15*ratio);
 		context.stroke();
 
 		// bottom shadow
 		context.beginPath();
 		context.strokeStyle = "rgba(0,0,0,0.3)";
-		context.moveTo(w,16);
-		context.lineTo(15,16);
+		context.moveTo(w,16*ratio);
+		context.lineTo(15*ratio,16*ratio);
 		context.stroke();
 
 		// label
@@ -197,10 +202,10 @@
 		context.textBaseline = "top";
 
 		// unfortunately webkit/mozilla are a pixel different in text positioning
-		context.fillText(label, 15, browser.mozilla ? 7 : 6);
+		context.fillText(label, ratio === 2 ? 29 : 15, browser.mozilla ? 7*ratio : 6*ratio);
 	};
 
-	var refreshFavicon = function(){
+	var refreshFavicon = function() {
 		// check support
 		if (!getCanvas().getContext) return;
 
@@ -230,16 +235,16 @@
 	};
 
 	// public methods
-	Tinycon.setOptions = function(custom){
+	Tinycon.setOptions = function(custom) {
 		options = {};
 
-		for(var key in defaults){
+		for(var key in defaults) {
 			options[key] = custom.hasOwnProperty(key) ? custom[key] : defaults[key];
 		}
 		return this;
 	};
 
-	Tinycon.setImage = function(url){
+	Tinycon.setImage = function(url) {
 		currentFavicon = url;
 		refreshFavicon();
 		return this;
@@ -251,7 +256,7 @@
 		return this;
 	};
 
-	Tinycon.reset = function(){
+	Tinycon.reset = function() {
 		setFaviconTag(originalFavicon);
 	};
 
