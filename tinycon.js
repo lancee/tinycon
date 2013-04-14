@@ -15,7 +15,7 @@
 	var faviconImage = null;
 	var canvas = null;
 	var options = {};
-	var ratio = devicePixelRatio;
+	var ratio = 2;
 	var size = 16 * ratio;
 	var defaults = {
 		width: 7,
@@ -116,6 +116,8 @@
 		var colour = colour || '#000000';
 		var src = getCurrentFavicon();
 
+		var clipped = browser.mozilla ? 16 : size;
+
 		faviconImage = new Image();
 		faviconImage.onload = function() {
 
@@ -123,7 +125,7 @@
 			context.clearRect(0, 0, size, size);
 
 			// draw original favicon
-			context.drawImage(faviconImage, 0, 0, size, size, 0, 0, size, size);
+			context.drawImage(faviconImage, 0, 0, clipped, clipped, 0, 0, size, size);
 
 			// draw bubble over the top
 			if ((label + '').length > 0) drawBubble(context, label, colour);
